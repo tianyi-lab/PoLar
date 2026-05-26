@@ -1,4 +1,4 @@
-# Skip a Layer or Loop It? Learning Program-of-Layers in LLMs
+# Skip a Layer or Loop It? Learning Program-of-Layers in LLMs (ICML 2026 Oral)
 
 [Previous arXiv Version](https://arxiv.org/pdf/2507.07996)
 

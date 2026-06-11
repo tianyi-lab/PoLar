@@ -1,6 +1,7 @@
 # Skip a Layer or Loop It? Learning Program-of-Layers in LLMs (ICML 2026 Oral)
 
-[Previous arXiv Version](https://arxiv.org/pdf/2507.07996)
+[PDF](https://arxiv.org/pdf/2606.06574)
+[Preliminary Study in 2025](https://arxiv.org/pdf/2507.07996)
 
 This repository contains the release implementation for the ICML 2026 version of the project. The corresponding paper version is not publicly released yet; the previous version is available on arXiv.
 
@@ -156,10 +157,10 @@ python3 run_polar.py \
 
 Please consider citing our work if you find the code or project useful.
 
-Previous version:
+Preliminary study:
 
 ```bibtex
-@article{li2025skip,
+@article{li2025CoLa,
   title={Skip a layer or loop it? test-time depth adaptation of pretrained llms},
   author={Li, Ziyue and Li, Yang and Zhou, Tianyi},
   journal={arXiv preprint arXiv:2507.07996},
@@ -167,8 +168,13 @@ Previous version:
 }
 ```
 
-ICML 2026 version:
+ICML 2026:
 
 ```bibtex
-Coming soon.
+@inproceedings{li2026PoLar,
+  author = {Ziyue Li and Yang Li and Tianyi Zhou},
+  title = {{Skip a Layer or Loop It? Learning Program-of-Layers in LLMs}},
+  booktitle = {Forty-third International Conference on Machine Learning (ICML)},
+  year = {2026},
+  url = {https://arxiv.org/pdf/2606.06574}}
 ```

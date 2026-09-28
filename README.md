@@ -2,17 +2,21 @@
 
 [PDF](https://arxiv.org/pdf/2606.06574)
 
-[Preliminary Study in 2025](https://arxiv.org/pdf/2507.07996)
+[Preliminary Study (2025)](https://arxiv.org/pdf/2507.07996)
 
-This repository contains the release implementation for the ICML 2026 version of the project. The corresponding paper version is not publicly released yet; the previous version is available on arXiv.
+This repository contains the official implementation of our ICML 2026 paper.
 
-![POLAR searches over execution programs that skip, keep, or repeat pretrained transformer layer segments.](search_space.png)
+![PoLar searches over execution programs that skip, keep, or repeat pretrained transformer layer segments.](search_space.png)
 
 ## Abstract
 
 Large language models (LLMs) perform inference by following a fixed depth and order, non-recurrent execution of all layers. We reveal the wide existence of training-free, flexible, dynamic *program-of-layers (PoLar)*, where pretrained layers can be packed as modules and then skipped or looped to form a customized program for each input. For most inputs, substantially shorter program executions can achieve the same or better accuracy, while incorrect predictions of the original LLM can be corrected by alternative programs with fewer layers. These observations indicate that inference admits multiple valid latent computations beyond the standard forward pass. To efficiently achieve PoLar in practice, we propose a lightweight PoLar prediction network, which learns to generate execution programs that dynamically skip or repeat pretrained layers for each input. Experiments on mathematical reasoning benchmarks demonstrate that PoLar consistently improves accuracy over standard inference and prior dynamic-depth methods, often while executing fewer layers, and that these gains persist under out-of-distribution evaluation. Our results suggest that fixed-depth execution captures only a narrow subset of an LLM’s latent reasoning capacity.
 
-The paper uses MCTS as an offline tool to discover valid execution programs and to study the program-of-layers space. This release focuses on the lightweight POLAR predictor trained from those discovered programs.
+The paper uses MCTS as an offline tool to discover valid execution programs and to study the program-of-layers space. This repository includes both the offline MCTS discovery code and the lightweight PoLar predictor trained using the discovered programs as supervision.
+
+## Updates
+
+- **[Sep. 2026]** We released the offline MCTS search code for program-of-layers discovery. See [`mcts_discovery/`](mcts_discovery/) for usage instructions.
 
 ## Supported Models
 
@@ -26,15 +30,19 @@ This release keeps support for the four models used in the paper:
 ## Repository Layout
 
 ```text
-run_polar.py        # CLI entrypoint
+run_polar.py                  # CLI entrypoint
 polar/
-  config.py                    
-  data.py                      
-  model.py                     # PolarPredictor and beam decoding helpers
-  train.py                     # training loop
-  eval.py                      # evaluation loop
-llm_depth_router/              # model loading and custom layer-path execution patches
-dart_math/                     # math answer extraction and equivalence checking
+  config.py
+  data.py
+  model.py                    # PolarPredictor and beam decoding helpers
+  train.py                    # training loop
+  eval.py                     # evaluation loop
+mcts_discovery/
+  run_mcts.py                 # offline MCTS program discovery
+  merge_mcts_samples.py       # merge MCTS output shards
+  README.md                   # MCTS usage instructions
+llm_depth_router/             # model loading and custom layer-path execution patches
+dart_math/                    # math answer extraction and equivalence checking
 ```
 
 ## Installation
@@ -46,6 +54,8 @@ pip install -r requirements.txt
 ```
 
 ## Expected Data Layout
+
+To generate MCTS supervision, see [`mcts_discovery/README.md`](mcts_discovery/README.md).
 
 The code expects one `merged_mcts_samples.json` file per DART-Math difficulty level. `--data_root` should point to the root directory that contains one subdirectory per supported `model_path`:
 
@@ -73,7 +83,7 @@ the diff-1 supervision file is read from:
 
 ## Supervision Format
 
-To train POLAR, prepare each `merged_mcts_samples.json` supervision file as either:
+To train PoLar, prepare each `merged_mcts_samples.json` supervision file as either:
 
 - a JSON object with a top-level `"samples"` list;
 - a JSON list of sample objects;
@@ -85,6 +95,7 @@ Each sample should contain the original problem, the ground-truth answer, and of
 {
   "samples": [
     {
+      "query_id": "MATH/train/...",
       "question": "Solve ...",
       "gt_ans": "\\boxed{42}",
       "initial_score": 0.0,
@@ -108,6 +119,7 @@ Required fields:
 
 Optional fields:
 
+- `query_id`: the public DART-Math identifier for the underlying query.
 - `final_invalid_transitions`: paths known to be invalid. Evaluation uses these to avoid unnecessary online checks when `--trust_valid_cache` is enabled.
 - `initial_score`: the baseline score for the original full-depth path, saved in the evaluation output for analysis.
 
@@ -121,7 +133,7 @@ Path semantics:
 
 ## Sample Command
 
-The sample command trains POLAR on DART-Math difficulty 1 for LLaMA-3.2-3B-Instruct and then evaluates the resulting checkpoint:
+The sample command trains PoLar on DART-Math difficulty 1 for LLaMA-3.2-3B-Instruct and then evaluates the resulting checkpoint:
 
 ```bash
 python3 run_polar.py \
